@@ -47,7 +47,7 @@ BENCH_EXE = $(OUT_DIR)/mocc_bench
 $(OUT_DIR):
 	mkdir -p $(OUT_DIR)
 
-build: $(LIB)
+build: format $(LIB)
 
 $(LIB): $(MOCC_OBJ)
 	$(AR) rcs $@ $^
@@ -61,11 +61,14 @@ $(TEST_EXE): $(TEST_DIR)/mocc_test.c $(LIB)
 $(BENCH_EXE): $(BENCH_DIR)/mocc_bench.c $(LIB)
 	$(CXX) $(CXXFLAGS) $(BENCH_DIR)/mocc_bench.c -L$(OUT_DIR) -lmocc -o $@ $(LDFLAGS)
 
-test: $(TEST_EXE)
+test: format $(TEST_EXE)
 	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 ./$(TEST_EXE)
 
-bench: $(BENCH_EXE)
+bench: format $(BENCH_EXE)
 	ASAN_OPTIONS=detect_leaks=1:halt_on_error=1 ./$(BENCH_EXE)
+
+format:
+	clang-format -i --style=file $(SRC_DIR)/*.c $(SRC_DIR)/*.h $(TEST_DIR)/*.c $(BENCH_DIR)/*.c
 
 clean:
 	rm -rf $(OUT_DIR)
