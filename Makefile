@@ -56,6 +56,7 @@ CFLAGS = \
 	-Wpedantic \
 	-g \
 	-fsanitize=address \
+	-pthread \
 	$(INCLUDE_DIRS)
 
 CXXFLAGS = \
@@ -65,6 +66,7 @@ CXXFLAGS = \
 	-Wpedantic \
 	-g \
 	-fsanitize=address \
+	-pthread \
 	$(INCLUDE_DIRS)
 
 ifeq ($(VERBOSE_ENABLED),1)

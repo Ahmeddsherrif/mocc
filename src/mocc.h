@@ -111,17 +111,6 @@ mocc_error mocc_push_back(mocc_object* me, const void* element);
 mocc_error mocc_pop_back(mocc_object* me);
 
 /**
- * Insert element at index.
- *
- * @in me      Container object.
- * @in index   Target index.
- * @in element Element to insert.
- *
- * @return MOCC_OK on success.
- */
-mocc_error mocc_insert(mocc_object* me, size_t index, const void* element);
-
-/**
  * Erase element at index.
  *
  * @in me    Container object.
@@ -193,17 +182,6 @@ mocc_error mocc_safe_push_back(mocc_object* me, const void* element);
  * @return MOCC_OK on success.
  */
 mocc_error mocc_safe_pop_back(mocc_object* me);
-
-/**
- * Thread-safe insert element at index.
- *
- * @in me      Container object.
- * @in index   Target index.
- * @in element Element to insert.
- *
- * @return MOCC_OK on success.
- */
-mocc_error mocc_safe_insert(mocc_object* me, size_t index, const void* element);
 
 /**
  * Thread-safe erase element at index.
