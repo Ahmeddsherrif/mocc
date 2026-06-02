@@ -57,6 +57,7 @@ CFLAGS = \
 	-g \
 	-fsanitize=address \
 	-pthread \
+	-DASSERT_ENABLED \
 	$(INCLUDE_DIRS)
 
 CXXFLAGS = \

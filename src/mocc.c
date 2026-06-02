@@ -7,6 +7,7 @@
 
 #define MOCC_DEFAULT_CAPACITY 8
 
+#ifdef ASSERT_ENABLED
 #define DEFFENSIVE_ASSERT(expr, error)                                                             \
     do                                                                                             \
     {                                                                                              \
@@ -16,7 +17,9 @@
             return error;                                                                          \
         }                                                                                          \
     } while (0)
-
+#else
+#define DEFFENSIVE_ASSERT(expr, error) ((void)0)
+#endif
 struct mocc_object
 {
     void* _back;
@@ -30,40 +33,50 @@ struct mocc_object
 
 static mocc_error __mocc_lock(mocc_object* me)
 {
+    int err;
+
     DEFFENSIVE_ASSERT(me, MOCC_ERROR_INVALID_ARGUMENT);
-    DEFFENSIVE_ASSERT(0 == pthread_mutex_lock(&me->_mutex), MOCC_ERROR_INTERNAL);
+
+    err = pthread_mutex_lock(&me->_mutex);
+
+    DEFFENSIVE_ASSERT(0 == err, MOCC_ERROR_INTERNAL);
 
     return MOCC_OK;
 }
 
 static mocc_error __mocc_unlock(mocc_object* me)
 {
+    int err;
     DEFFENSIVE_ASSERT(me, MOCC_ERROR_INVALID_ARGUMENT);
-    DEFFENSIVE_ASSERT(0 == pthread_mutex_unlock(&me->_mutex), MOCC_ERROR_INTERNAL);
+
+    err = pthread_mutex_unlock(&me->_mutex);
+
+    DEFFENSIVE_ASSERT(0 == err, MOCC_ERROR_INTERNAL);
 
     return MOCC_OK;
 }
 
-mocc_error mocc_ctor(size_t element_size, mocc_object** object)
+mocc_error mocc_ctor(size_t element_size, size_t initial_capacity, mocc_object** object)
 {
     mocc_object* mocc = NULL;
     void* buffer = NULL;
 
     DEFFENSIVE_ASSERT(element_size > 0, MOCC_ERROR_INVALID_ARGUMENT);
+    DEFFENSIVE_ASSERT(initial_capacity > 0, MOCC_ERROR_INVALID_ARGUMENT);
     DEFFENSIVE_ASSERT(object, MOCC_ERROR_INVALID_ARGUMENT);
 
     mocc = calloc(1, sizeof(mocc_object));
     DEFFENSIVE_ASSERT(mocc, MOCC_ERROR_OUT_OF_MEMORY);
 
-    buffer = calloc(MOCC_DEFAULT_CAPACITY, element_size);
+    buffer = calloc(initial_capacity, element_size);
     DEFFENSIVE_ASSERT(buffer, MOCC_ERROR_OUT_OF_MEMORY);
 
     mocc->_element_size = element_size;
     mocc->_front = buffer;
     mocc->_back = (char*)buffer - element_size;
-    mocc->_tail = (char*)buffer + MOCC_DEFAULT_CAPACITY * element_size;
+    mocc->_tail = (char*)buffer + initial_capacity * element_size;
     mocc->_size = 0;
-    mocc->_capacity = MOCC_DEFAULT_CAPACITY;
+    mocc->_capacity = initial_capacity;
 
     DEFFENSIVE_ASSERT(0 == pthread_mutex_init(&mocc->_mutex, NULL), MOCC_ERROR_INTERNAL);
 

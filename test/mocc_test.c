@@ -54,17 +54,17 @@ static void assert_contents(int expected[], size_t count)
  * --------------------------*/
 void test_ctor_invalid_size(void)
 {
-    TEST_ASSERT_EQUAL(MOCC_ERROR_INVALID_ARGUMENT, mocc_ctor(0, &g_mocc));
+    TEST_ASSERT_EQUAL(MOCC_ERROR_INVALID_ARGUMENT, mocc_ctor(0, 8, &g_mocc));
 }
 
 void test_ctor_invalid_output_pointer(void)
 {
-    TEST_ASSERT_EQUAL(MOCC_ERROR_INVALID_ARGUMENT, mocc_ctor(sizeof(int), NULL));
+    TEST_ASSERT_EQUAL(MOCC_ERROR_INVALID_ARGUMENT, mocc_ctor(sizeof(int), 8, NULL));
 }
 
 void test_create_and_destroy(void)
 {
-    TEST_ASSERT_EQUAL(MOCC_OK, mocc_ctor(sizeof(int), &g_mocc));
+    TEST_ASSERT_EQUAL(MOCC_OK, mocc_ctor(sizeof(int), 8, &g_mocc));
     TEST_ASSERT_NOT_NULL(g_mocc);
 }
 
@@ -81,7 +81,7 @@ void test_size_capacity_initial(void)
     size_t size = 0;
     size_t cap = 0;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_size(g_mocc, &size));
     TEST_ASSERT_EQUAL(0, size);
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_capacity(g_mocc, &cap));
@@ -92,7 +92,7 @@ void test_reserve_invalid_capacity(void)
 {
     size_t cap;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     TEST_ASSERT_EQUAL(MOCC_ERROR_INVALID_ARGUMENT, mocc_reserve(g_mocc, 0));
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_capacity(g_mocc, &cap));
     TEST_ASSERT_TRUE(cap >= 8);
@@ -103,7 +103,7 @@ void test_shrink_to_fit_empty_container(void)
     size_t size = 1;
     size_t cap = 1;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_shrink_to_fit(g_mocc));
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_size(g_mocc, &size));
     TEST_ASSERT_EQUAL(0, size);
@@ -115,7 +115,7 @@ void test_reserve_grows_capacity(void)
 {
     size_t cap;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_reserve(g_mocc, 100));
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_capacity(g_mocc, &cap));
     TEST_ASSERT_TRUE(cap >= 100);
@@ -129,7 +129,7 @@ void test_push_back_and_size(void)
     int values[2] = {10, 20};
     size_t size = 0;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     push_values(values, 2);
 
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_size(g_mocc, &size));
@@ -144,7 +144,7 @@ void test_push_back_capacity_growth(void)
     size_t size = 0;
     size_t index;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     for (index = 0; index < 12; ++index)
     {
         values[index] = (int)index + 1;
@@ -164,7 +164,7 @@ void test_pop_back_decrements_size(void)
     size_t size = 0;
     void* ptr = NULL;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     push_values(values, 3);
 
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_pop_back(g_mocc));
@@ -179,7 +179,7 @@ void test_pop_back_to_empty(void)
     int value = 42;
     size_t size = 1;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     mocc_push_back(g_mocc, &value);
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_pop_back(g_mocc));
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_size(g_mocc, &size));
@@ -195,7 +195,7 @@ void test_at_front_back(void)
     int values[3] = {1, 2, 3};
     void* ptr = NULL;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     push_values(values, 3);
 
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_front(g_mocc, &ptr));
@@ -210,7 +210,7 @@ void test_front_back_empty_error(void)
 {
     void* ptr = NULL;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     TEST_ASSERT_EQUAL(MOCC_ERROR_EMPTY, mocc_front(g_mocc, &ptr));
     TEST_ASSERT_EQUAL(MOCC_ERROR_EMPTY, mocc_back(g_mocc, &ptr));
 }
@@ -223,7 +223,7 @@ void test_erase_first_element(void)
     int values[3] = {1, 2, 3};
     int expected[2] = {2, 3};
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     push_values(values, 3);
 
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_erase(g_mocc, 0));
@@ -235,7 +235,7 @@ void test_erase_middle_element(void)
     int values[4] = {10, 20, 30, 40};
     int expected[3] = {10, 30, 40};
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     push_values(values, 4);
 
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_erase(g_mocc, 1));
@@ -249,7 +249,7 @@ void test_erase_last_element(void)
     void* ptr = NULL;
     size_t size = 0;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     push_values(values, 3);
 
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_erase(g_mocc, 2));
@@ -262,7 +262,7 @@ void test_erase_last_element(void)
 
 void test_erase_invalid_index(void)
 {
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     TEST_ASSERT_EQUAL(MOCC_ERROR_INVALID_INDEX, mocc_erase(g_mocc, 5));
 }
 
@@ -276,7 +276,7 @@ void test_clear_preserves_capacity_and_reuse(void)
     size_t cap = 0;
     size_t size = 0;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     push_values(values, 3);
 
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_clear(g_mocc));
@@ -296,14 +296,14 @@ void test_invalid_at_out_of_bounds(void)
 {
     void* ptr = NULL;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     TEST_ASSERT_EQUAL(MOCC_ERROR_INVALID_INDEX, mocc_at(g_mocc, 0, &ptr));
     TEST_ASSERT_EQUAL(MOCC_ERROR_INVALID_INDEX, mocc_at(g_mocc, 1, &ptr));
 }
 
 void test_pop_back_empty(void)
 {
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     TEST_ASSERT_EQUAL(MOCC_ERROR_EMPTY, mocc_pop_back(g_mocc));
 }
 
@@ -317,7 +317,7 @@ void test_safe_push_back_and_safe_front_back(void)
     size_t size = 0;
     size_t cap = 0;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_safe_push_back(g_mocc, &value));
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_safe_size(g_mocc, &size));
     TEST_ASSERT_EQUAL(1, size);
@@ -395,7 +395,7 @@ void test_safe_clear_and_safe_at(void)
     int values[2] = {3, 4};
     void* ptr = NULL;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
     push_values(values, 2);
     TEST_ASSERT_EQUAL(MOCC_OK, mocc_safe_clear(g_mocc));
     TEST_ASSERT_EQUAL(MOCC_ERROR_INVALID_INDEX, mocc_safe_at(g_mocc, 0, &ptr));
@@ -411,7 +411,7 @@ void test_safe_concurrent_push_back(void)
     int index;
     int value;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
 
     for (index = 0; index < SAFE_PUSH_THREAD_COUNT; ++index)
     {
@@ -450,7 +450,7 @@ void test_safe_concurrent_pop_back(void)
     size_t size = 0;
     int index;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
 
     for (index = 0; index < SAFE_PUSH_TOTAL; ++index)
     {
@@ -481,7 +481,7 @@ void test_safe_concurrent_size_reads(void)
     size_t size = 0;
     void* result = NULL;
 
-    mocc_ctor(sizeof(int), &g_mocc);
+    mocc_ctor(sizeof(int), 8, &g_mocc);
 
     for (index = 0; index < SAFE_PUSH_TOTAL; ++index)
     {

@@ -37,7 +37,7 @@ extern "C"
      *
      * @return MOCC_OK on success.
      */
-    mocc_error mocc_ctor(size_t element_size, mocc_object** object);
+    mocc_error mocc_ctor(size_t element_size, size_t initial_capacity, mocc_object** object);
 
     /**
      * Destroy a container instance.
