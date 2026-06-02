@@ -1,90 +1,86 @@
 # mocc
 
-`mocc` is a memory-optimized custom container library implemented in C. It mimics the functionality of a dynamic array while focusing on strict memory management and efficient allocation strategies.
+`mocc` is a compact dynamic array container implemented in C with a small, testable runtime. It provides vector-style operations while keeping memory management explicit and error-safe.
 
-## Task Overview
+## What this repository provides
 
-The task requirement is defined in `doc/B2Task.pdf`.
+- `src/mocc.c` and `src/mocc.h`: dynamic array implementation and public interface
+- `test/mocc_test.c`: extensive Unity-based unit tests covering edge cases, capacity growth, and thread-safe wrappers
+- `bench/mocc_bench.c`: benchmark harness for performance evaluation
+- `3rd/Unity/`: embedded Unity test framework submodule
 
-This project is intended to satisfy the following high-level goals:
+## Key features
 
-- Implement a dynamic array-style container in pure C (C89/C90 compatible)
-- Provide initialization, insertion, deletion, random access, and resize behavior
-- Optimize memory usage with a custom allocation strategy
-- Handle edge cases such as out-of-bounds access and empty deletions
-- Include error handling for invalid operations and memory failures
-- Support testing with the Unity framework in `3rd/Unity`
-- Provide a benchmark program for performance evaluation
+- dynamic resizing with `mocc_reserve` and `mocc_shrink_to_fit`
+- append and remove operations: `mocc_push_back`, `mocc_pop_back`, `mocc_erase`
+- random access via `mocc_at`, `mocc_front`, and `mocc_back`
+- error reporting through `mocc_error` return codes
+- thread-safe wrappers for concurrent use: `mocc_safe_*` APIs
+- built with C89/C90-compatible code and pthread-based locking
 
-## Prerequisites
+## Getting started
 
-Install the required packages on Ubuntu/Debian:
+### Prerequisites
+
+Install the required tools on Ubuntu/Debian:
 
 ```bash
 sudo apt update
 sudo apt install git make gcc g++
 ```
 
-If you prefer a single package set, you can also install the build essentials:
+If you prefer the full development toolchain:
 
 ```bash
 sudo apt install build-essential git
 ```
 
-## Clone the Repository
+### Clone the repository
 
-Clone the project and fetch the Unity submodule in one step:
+Clone the project and initialize the Unity submodule:
 
 ```bash
 git clone --recurse-submodules https://github.com/Ahmeddsherrif/mocc
 ```
 
-If you already cloned the repository without submodules, initialize them manually:
+If the repo is already cloned without submodules:
 
 ```bash
 git submodule update --init --recursive
 ```
 
-## Build Instructions
+## Build and test
 
-The repository includes a top-level `Makefile`.
-
-To build the library and object files:
+Build the project, including the library, unit tests, and benchmark executable:
 
 ```bash
 make build
 ```
 
-This creates the output directory and compiles:
-
-- `out/libmocc.a`
-- `out/mocc.o`
-
-## Run Unit Tests
-
-This project uses Unity for unit testing. The Unity source lives in `3rd/Unity/src`.
-
-Build and run the tests with:
+Run the full unit test suite:
 
 ```bash
 make test
 ```
 
-The `test` target builds `out/mocc_test` using `test/mocc_test.c` and `3rd/Unity/src/unity.c`, then executes the test binary.
+Or build and execute the test binary manually:
 
-## Run Benchmark
+```bash
+make out/mocc_test
+./out/mocc_test
+```
 
-The benchmark program is built from `bench/mocc_bench.c`.
+## Benchmark
 
-Build and run the benchmark with:
+Build and run the benchmark executable:
 
 ```bash
 make bench
 ```
 
-## Clean Build Artifacts
+## Clean generated files
 
-Remove generated output files:
+Remove the build output directory:
 
 ```bash
 make clean
@@ -92,14 +88,11 @@ make clean
 
 ## Notes
 
-- Unity is used as the test framework, and its source is included under `3rd/Unity`.
-- The code is compiled with AddressSanitizer enabled via `-fsanitize=address` for safer memory debugging.
-- The task PDF in `doc/B2Task.pdf` describes the required dynamic array interface, advanced memory handling, concurrency, error handling, and benchmarking expectations.
-
-## Project Layout
-
-- `src/` — core `mocc` implementation and header
-- `test/` — unit test source files
-- `bench/` — benchmarking source file
-- `3rd/Unity/` — Unity test framework submodule
-- `doc/` — task description and documentation
+- The unit tests include concurrency validation for the `mocc_safe_*` thread-safe APIs.
+- The build uses AddressSanitizer (`-fsanitize=address`) for safer memory diagnostics.
+- The repository follows a simple layout:
+  - `src/` — core implementation
+  - `test/` — unit test code
+  - `bench/` — benchmark code
+  - `3rd/Unity/` — Unity framework
+  - `doc/` — documentation and task details

@@ -11,6 +11,8 @@
 #define SAFE_PUSH_TOTAL (SAFE_PUSH_THREAD_COUNT * SAFE_PUSH_ITERATIONS)
 #define SAFE_POP_THREAD_COUNT 5
 #define SAFE_POP_ATTEMPTS 80
+#define SAFE_READ_THREAD_COUNT 3
+#define SAFE_READ_ITERATIONS 500
 
 static mocc_object* g_mocc = NULL;
 
@@ -366,6 +368,28 @@ static void* pop_thread(void* arg)
     return NULL;
 }
 
+typedef struct size_thread_args
+{
+    mocc_object* mocc;
+    int iterations;
+} size_thread_args_t;
+
+static void* size_thread(void* arg)
+{
+    size_thread_args_t* args = (size_thread_args_t*)arg;
+    int index;
+    size_t size;
+    size_t cap;
+
+    for (index = 0; index < args->iterations; ++index)
+    {
+        TEST_ASSERT_EQUAL(MOCC_OK, mocc_safe_size(args->mocc, &size));
+        TEST_ASSERT_EQUAL(MOCC_OK, mocc_safe_capacity(args->mocc, &cap));
+    }
+
+    return NULL;
+}
+
 void test_safe_clear_and_safe_at(void)
 {
     int values[2] = {3, 4};
@@ -449,6 +473,37 @@ void test_safe_concurrent_pop_back(void)
     TEST_ASSERT_EQUAL(0, size);
 }
 
+void test_safe_concurrent_size_reads(void)
+{
+    pthread_t threads[SAFE_READ_THREAD_COUNT];
+    size_thread_args_t args[SAFE_READ_THREAD_COUNT];
+    int index;
+    size_t size = 0;
+    void* result = NULL;
+
+    mocc_ctor(sizeof(int), &g_mocc);
+
+    for (index = 0; index < SAFE_PUSH_TOTAL; ++index)
+    {
+        mocc_push_back(g_mocc, &index);
+    }
+
+    for (index = 0; index < SAFE_READ_THREAD_COUNT; ++index)
+    {
+        args[index].mocc = g_mocc;
+        args[index].iterations = SAFE_READ_ITERATIONS;
+        TEST_ASSERT_EQUAL(0, pthread_create(&threads[index], NULL, size_thread, &args[index]));
+    }
+
+    for (index = 0; index < SAFE_READ_THREAD_COUNT; ++index)
+    {
+        TEST_ASSERT_EQUAL(0, pthread_join(threads[index], &result));
+    }
+
+    TEST_ASSERT_EQUAL(MOCC_OK, mocc_size(g_mocc, &size));
+    TEST_ASSERT_EQUAL(SAFE_PUSH_TOTAL, size);
+}
+
 /* ---------------------------
  * Main
  * --------------------------*/
@@ -481,6 +536,7 @@ int main(void)
     RUN_TEST(test_safe_clear_and_safe_at);
     RUN_TEST(test_safe_concurrent_push_back);
     RUN_TEST(test_safe_concurrent_pop_back);
+    RUN_TEST(test_safe_concurrent_size_reads);
 
     return UNITY_END();
 }

@@ -84,7 +84,7 @@ LIB       = $(OUT_DIR)/libmocc.a
 TEST_EXE  = $(OUT_DIR)/mocc_test
 BENCH_EXE = $(OUT_DIR)/mocc_bench
 
-.PHONY: build clean format
+.PHONY: build clean format test bench
 
 #------------------------------------------------------------------------------
 # Build
@@ -117,17 +117,25 @@ $(TEST_EXE): $(TEST_DIR)/mocc_test.c $(LIB)
 		-o $@ \
 		$(LDFLAGS)
 
+.PHONY: test
+test: $(TEST_EXE)
+	./$(TEST_EXE)
+
 #------------------------------------------------------------------------------
 # Benchmarks
 #------------------------------------------------------------------------------
 
-$(BENCH_EXE): $(BENCH_DIR)/mocc_bench.c $(LIB)
+$(BENCH_EXE): $(BENCH_DIR)/mocc_bench.cpp $(LIB)
 	$(CXX) $(CXXFLAGS) \
-		$(BENCH_DIR)/mocc_bench.c \
+		$(BENCH_DIR)/mocc_bench.cpp \
 		-L$(OUT_DIR) \
 		-lmocc \
 		-o $@ \
 		$(LDFLAGS)
+
+.PHONY: bench
+bench: $(BENCH_EXE)
+	./$(BENCH_EXE)
 
 #------------------------------------------------------------------------------
 # Utilities
@@ -138,7 +146,7 @@ format:
 		$(SRC_DIR)/*.c \
 		$(SRC_DIR)/*.h \
 		$(TEST_DIR)/*.c \
-		$(BENCH_DIR)/*.c
+		$(BENCH_DIR)/*.cpp
 
 clean:
 	rm -rf $(OUT_DIR)
