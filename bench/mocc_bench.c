@@ -2,9 +2,8 @@
 
 #include <stdio.h>
 
-int main()
+int main(void)
 {
-    int result = mocc_function(4, 5);
-    printf("Result: %d\n", result);
+    printf("Result: %d\n", 5);
     return 0;
 }

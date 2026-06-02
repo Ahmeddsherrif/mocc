@@ -1,56 +1,86 @@
 #include "mocc.h"
+#include <assert.h>
 
-mocc_error __mocc_compact(mocc_object* me)
+struct mocc_object
+{
+    void* data;
+    size_t size;
+    size_t capacity;
+    size_t element_size;
+};
+
+const char* mocc_error_string(mocc_error error)
 {
 
-    (void)me;
+    switch (error)
+    {
+        case MOCC_ERROR_OUT_OF_MEMORY:
+            return "[MOCC] Out of memory";
+
+        case MOCC_ERROR_INVALID_ARGUMENT:
+            return "[MOCC] Invalid argument";
+
+        case MOCC_ERROR_INVALID_INDEX:
+            return "[MOCC] Invalid index";
+
+        case MOCC_ERROR_EMPTY:
+            return "[MOCC] Container is empty";
+
+        case MOCC_ERROR_INTERNAL:
+            return "[MOCC] Internal error";
+
+        case MOCC_OK:
+            return "[MOCC] No error";
+    }
+
+    return "[MOCC] Unknown error";
+}
+
+static mocc_error __mocc_compact(mocc_object* me)
+{
+
+    assert(me);
     return MOCC_OK;
 }
 
-mocc_error __mocc_collect_garbage(mocc_object* me)
+static mocc_error __mocc_collect_garbage(mocc_object* me)
 {
 
-    (void)me;
+    assert(me);
     return MOCC_OK;
 }
 
-mocc_error __mocc_pool_initialize(mocc_object* me, size_t block_size, size_t block_count)
+static mocc_error __mocc_pool_initialize(mocc_object* me, size_t block_size, size_t block_count)
 {
 
-    (void)me;
+    assert(me);
     (void)block_size;
     (void)block_count;
     return MOCC_OK;
 }
 
-mocc_error __mocc_pool_release(mocc_object* me)
+static mocc_error __mocc_pool_release(mocc_object* me)
 {
 
-    (void)me;
+    assert(me);
     return MOCC_OK;
 }
 
-mocc_error __mocc_lock(mocc_object* me)
+static mocc_error __mocc_lock(mocc_object* me)
 {
 
-    (void)me;
+    assert(me);
     return MOCC_OK;
 }
 
-mocc_error __mocc_unlock(mocc_object* me)
+static mocc_error __mocc_unlock(mocc_object* me)
 {
 
-    (void)me;
+    assert(me);
     return MOCC_OK;
 }
 
-struct mocc_object
-{
-    size_t size;
-    size_t capacity;
-};
-
-mocc_error mocc_create(size_t element_size, size_t initial_capacity, mocc_object** object)
+mocc_error mocc_ctor(size_t element_size, size_t initial_capacity, mocc_object** object)
 {
     (void)element_size;
     (void)initial_capacity;
@@ -59,16 +89,16 @@ mocc_error mocc_create(size_t element_size, size_t initial_capacity, mocc_object
     return MOCC_OK;
 }
 
-mocc_error mocc_destroy(mocc_object* me)
+mocc_error mocc_dtor(mocc_object* me)
 {
-    (void)me;
+    assert(me);
 
     return MOCC_OK;
 }
 
 mocc_error mocc_size(mocc_object* me, size_t* size)
 {
-    (void)me;
+    assert(me);
     (void)size;
 
     return MOCC_OK;
@@ -76,7 +106,7 @@ mocc_error mocc_size(mocc_object* me, size_t* size)
 
 mocc_error mocc_capacity(mocc_object* me, size_t* capacity)
 {
-    (void)me;
+    assert(me);
     (void)capacity;
 
     return MOCC_OK;
@@ -84,7 +114,7 @@ mocc_error mocc_capacity(mocc_object* me, size_t* capacity)
 
 mocc_error mocc_reserve(mocc_object* me, size_t capacity)
 {
-    (void)me;
+    assert(me);
     (void)capacity;
 
     return MOCC_OK;
@@ -92,7 +122,7 @@ mocc_error mocc_reserve(mocc_object* me, size_t capacity)
 
 mocc_error mocc_resize(mocc_object* me, size_t size)
 {
-    (void)me;
+    assert(me);
     (void)size;
 
     return MOCC_OK;
@@ -100,14 +130,14 @@ mocc_error mocc_resize(mocc_object* me, size_t size)
 
 mocc_error mocc_shrink_to_fit(mocc_object* me)
 {
-    (void)me;
+    assert(me);
 
     return MOCC_OK;
 }
 
 mocc_error mocc_push_back(mocc_object* me, const void* element)
 {
-    (void)me;
+    assert(me);
     (void)element;
 
     return MOCC_OK;
@@ -115,14 +145,14 @@ mocc_error mocc_push_back(mocc_object* me, const void* element)
 
 mocc_error mocc_pop_back(mocc_object* me)
 {
-    (void)me;
+    assert(me);
 
     return MOCC_OK;
 }
 
 mocc_error mocc_insert(mocc_object* me, size_t index, const void* element)
 {
-    (void)me;
+    assert(me);
     (void)index;
     (void)element;
 
@@ -131,7 +161,7 @@ mocc_error mocc_insert(mocc_object* me, size_t index, const void* element)
 
 mocc_error mocc_erase(mocc_object* me, size_t index)
 {
-    (void)me;
+    assert(me);
     (void)index;
 
     return MOCC_OK;
@@ -139,7 +169,7 @@ mocc_error mocc_erase(mocc_object* me, size_t index)
 
 mocc_error mocc_at(mocc_object* me, size_t index, void** element)
 {
-    (void)me;
+    assert(me);
     (void)index;
     (void)element;
 
@@ -148,7 +178,7 @@ mocc_error mocc_at(mocc_object* me, size_t index, void** element)
 
 mocc_error mocc_front(mocc_object* me, void** element)
 {
-    (void)me;
+    assert(me);
     (void)element;
 
     return MOCC_OK;
@@ -156,7 +186,7 @@ mocc_error mocc_front(mocc_object* me, void** element)
 
 mocc_error mocc_back(mocc_object* me, void** element)
 {
-    (void)me;
+    assert(me);
     (void)element;
 
     return MOCC_OK;
@@ -164,7 +194,7 @@ mocc_error mocc_back(mocc_object* me, void** element)
 
 mocc_error mocc_clear(mocc_object* me)
 {
-    (void)me;
+    assert(me);
 
     return MOCC_OK;
 }

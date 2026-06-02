@@ -56,3 +56,5 @@ dkms.conf
 
 
 out/*
+tmp/*
+log/*

@@ -3,3 +3,4 @@ IndentWidth: 4
 ColumnLimit: 100
 BreakBeforeBraces: Allman
 PointerAlignment: Left
+IndentCaseLabels: true
