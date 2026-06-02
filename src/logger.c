@@ -1,6 +1,5 @@
 #include "logger.h"
 
-#include <assert.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <time.h>
@@ -28,11 +27,11 @@ void logger_log(log_severity severity, const char* message, const char* file, in
             break;
 
         case LOGGER_SEVERITY_WARNING:
-            fprintf(stderr, "[%s][WARNING] %s:%d: %s\n", __get_timestamp(), file, line, message);
+            fprintf(stderr, "[%s][WARNING]: %s:%d: %s\n", __get_timestamp(), file, line, message);
             break;
 
         case LOGGER_SEVERITY_ERROR:
-            fprintf(stderr, "[%s][ERROR] %s:%d: %s\n", __get_timestamp(), file, line, message);
+            fprintf(stderr, "[%s][ERROR]: %s:%d: %s\n", __get_timestamp(), file, line, message);
             break;
     }
 }

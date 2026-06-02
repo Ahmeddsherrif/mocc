@@ -1,158 +1,136 @@
 #include "mocc.h"
-#include <assert.h>
+#include "logger.h"
+
+#include <stdlib.h>
+#include <string.h>
+
+#define DEFFENSIVE_ASSERT(expr, error)                                                             \
+    do                                                                                             \
+    {                                                                                              \
+        if (!(expr))                                                                               \
+        {                                                                                          \
+            LOG_ERROR("Assertion failed: (" #expr "): " #error);                                   \
+            return error;                                                                          \
+        }                                                                                          \
+    } while (0)
 
 struct mocc_object
 {
-    void* data;
-    size_t size;
-    size_t capacity;
-    size_t element_size;
+    void* _back;
+    void* _front;
+    void* _tail;
+    size_t _size;
+    size_t _capacity;
+    size_t _element_size;
 };
-
-const char* mocc_error_string(mocc_error error)
-{
-
-    switch (error)
-    {
-        case MOCC_ERROR_OUT_OF_MEMORY:
-            return "[MOCC] Out of memory";
-
-        case MOCC_ERROR_INVALID_ARGUMENT:
-            return "[MOCC] Invalid argument";
-
-        case MOCC_ERROR_INVALID_INDEX:
-            return "[MOCC] Invalid index";
-
-        case MOCC_ERROR_EMPTY:
-            return "[MOCC] Container is empty";
-
-        case MOCC_ERROR_INTERNAL:
-            return "[MOCC] Internal error";
-
-        case MOCC_OK:
-            return "[MOCC] No error";
-    }
-
-    return "[MOCC] Unknown error";
-}
-
-static mocc_error __mocc_compact(mocc_object* me)
-{
-
-    assert(me);
-    return MOCC_OK;
-}
-
-static mocc_error __mocc_collect_garbage(mocc_object* me)
-{
-
-    assert(me);
-    return MOCC_OK;
-}
-
-static mocc_error __mocc_pool_initialize(mocc_object* me, size_t block_size, size_t block_count)
-{
-
-    assert(me);
-    (void)block_size;
-    (void)block_count;
-    return MOCC_OK;
-}
-
-static mocc_error __mocc_pool_release(mocc_object* me)
-{
-
-    assert(me);
-    return MOCC_OK;
-}
 
 static mocc_error __mocc_lock(mocc_object* me)
 {
-
-    assert(me);
+    DEFFENSIVE_ASSERT(me, MOCC_ERROR_INTERNAL);
     return MOCC_OK;
 }
 
 static mocc_error __mocc_unlock(mocc_object* me)
 {
-
-    assert(me);
+    DEFFENSIVE_ASSERT(me, MOCC_ERROR_INTERNAL);
     return MOCC_OK;
 }
 
-mocc_error mocc_ctor(size_t element_size, size_t initial_capacity, mocc_object** object)
+mocc_error mocc_ctor(size_t element_size, mocc_object** object)
 {
-    (void)element_size;
-    (void)initial_capacity;
-    (void)object;
+    DEFFENSIVE_ASSERT(element_size > 0, MOCC_ERROR_INVALID_ARGUMENT);
+    DEFFENSIVE_ASSERT(object, MOCC_ERROR_INVALID_ARGUMENT);
+
+    mocc_object* mocc = calloc(1, sizeof(element_size));
+    DEFFENSIVE_ASSERT(mocc, MOCC_ERROR_OUT_OF_MEMORY);
+
+    mocc->_element_size = element_size;
+
+    *object = mocc;
 
     return MOCC_OK;
 }
 
 mocc_error mocc_dtor(mocc_object* me)
 {
-    assert(me);
+    DEFFENSIVE_ASSERT(me, MOCC_ERROR_INTERNAL);
+
+    free(me);
+
+    me = NULL;
 
     return MOCC_OK;
 }
 
 mocc_error mocc_size(mocc_object* me, size_t* size)
 {
-    assert(me);
-    (void)size;
+    DEFFENSIVE_ASSERT(me, MOCC_ERROR_INTERNAL);
+    *size = me->_size;
 
     return MOCC_OK;
 }
 
 mocc_error mocc_capacity(mocc_object* me, size_t* capacity)
 {
-    assert(me);
-    (void)capacity;
+    DEFFENSIVE_ASSERT(me, MOCC_ERROR_INTERNAL);
+    *capacity = me->_capacity;
 
     return MOCC_OK;
 }
 
 mocc_error mocc_reserve(mocc_object* me, size_t capacity)
 {
-    assert(me);
+    DEFFENSIVE_ASSERT(me, MOCC_ERROR_INTERNAL);
     (void)capacity;
-
-    return MOCC_OK;
-}
-
-mocc_error mocc_resize(mocc_object* me, size_t size)
-{
-    assert(me);
-    (void)size;
 
     return MOCC_OK;
 }
 
 mocc_error mocc_shrink_to_fit(mocc_object* me)
 {
-    assert(me);
+    DEFFENSIVE_ASSERT(me, MOCC_ERROR_INTERNAL);
 
     return MOCC_OK;
 }
 
 mocc_error mocc_push_back(mocc_object* me, const void* element)
 {
-    assert(me);
-    (void)element;
+    DEFFENSIVE_ASSERT(me, MOCC_ERROR_INTERNAL);
+
+    if (me->_size >= me->_capacity)
+    {
+        DEFFENSIVE_ASSERT(me->_back == me->_tail, MOCC_ERROR_INTERNAL);
+
+        mocc_error err = mocc_reserve(me, me->_capacity == 0 ? 1 : me->_capacity * 2);
+        if (err != MOCC_OK)
+            return err;
+    }
+
+    DEFFENSIVE_ASSERT(me->_size < me->_capacity, MOCC_ERROR_INTERNAL);
+    DEFFENSIVE_ASSERT(me->_back != me->_tail, MOCC_ERROR_INTERNAL);
+
+    me->_back += me->_element_size;
+    memcpy(me->_back, element, me->_element_size);
+
+    me->_size++;
 
     return MOCC_OK;
 }
 
 mocc_error mocc_pop_back(mocc_object* me)
 {
-    assert(me);
+    DEFFENSIVE_ASSERT(me, MOCC_ERROR_INTERNAL);
+    DEFFENSIVE_ASSERT(me->_size > 0, MOCC_ERROR_EMPTY);
+
+    me->_back -= me->_element_size;
+    me->_size--;
 
     return MOCC_OK;
 }
 
 mocc_error mocc_insert(mocc_object* me, size_t index, const void* element)
 {
-    assert(me);
+    DEFFENSIVE_ASSERT(me, MOCC_ERROR_INTERNAL);
     (void)index;
     (void)element;
 
@@ -161,7 +139,7 @@ mocc_error mocc_insert(mocc_object* me, size_t index, const void* element)
 
 mocc_error mocc_erase(mocc_object* me, size_t index)
 {
-    assert(me);
+    DEFFENSIVE_ASSERT(me, MOCC_ERROR_INTERNAL);
     (void)index;
 
     return MOCC_OK;
@@ -169,7 +147,7 @@ mocc_error mocc_erase(mocc_object* me, size_t index)
 
 mocc_error mocc_at(mocc_object* me, size_t index, void** element)
 {
-    assert(me);
+    DEFFENSIVE_ASSERT(me, MOCC_ERROR_INTERNAL);
     (void)index;
     (void)element;
 
@@ -178,23 +156,25 @@ mocc_error mocc_at(mocc_object* me, size_t index, void** element)
 
 mocc_error mocc_front(mocc_object* me, void** element)
 {
-    assert(me);
-    (void)element;
+    DEFFENSIVE_ASSERT(me, MOCC_ERROR_INTERNAL);
+
+    *element = me->_front;
 
     return MOCC_OK;
 }
 
 mocc_error mocc_back(mocc_object* me, void** element)
 {
-    assert(me);
-    (void)element;
+    DEFFENSIVE_ASSERT(me, MOCC_ERROR_INTERNAL);
+
+    *element = me->_back;
 
     return MOCC_OK;
 }
 
 mocc_error mocc_clear(mocc_object* me)
 {
-    assert(me);
+    DEFFENSIVE_ASSERT(me, MOCC_ERROR_INTERNAL);
 
     return MOCC_OK;
 }

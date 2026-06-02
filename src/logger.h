@@ -18,7 +18,7 @@ typedef enum
  */
 void logger_log(log_severity severity, const char* message, const char* file, int line);
 
-#ifdef LOGGER_ENABLED
+#ifdef VERBOSE_ENABLED
 #define __LOG(severity, message) logger_log((severity), (message), __FILE__, __LINE__)
 #else
 #define __LOG(severity, message) ((void)0)

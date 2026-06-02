@@ -32,7 +32,7 @@ typedef enum
  *
  * @return MOCC_OK on success.
  */
-mocc_error mocc_ctor(size_t element_size, size_t initial_capacity, mocc_object** object);
+mocc_error mocc_ctor(size_t element_size, mocc_object** object);
 
 /**
  * Destroy a container instance.
@@ -77,16 +77,6 @@ mocc_error mocc_capacity(mocc_object* me, size_t* capacity);
  * @return MOCC_OK on success.
  */
 mocc_error mocc_reserve(mocc_object* me, size_t capacity);
-
-/**
- * Resize container.
- *
- * @in me   Container object.
- * @in size New size.
- *
- * @return MOCC_OK on success.
- */
-mocc_error mocc_resize(mocc_object* me, size_t size);
 
 /**
  * Reduce capacity to match size.
@@ -284,11 +274,5 @@ mocc_error mocc_safe_size(mocc_object* me, size_t* size);
  * @return MOCC_OK on success.
  */
 mocc_error mocc_safe_capacity(mocc_object* me, size_t* capacity);
-
-/**
- * @brief Get error message for a given error code.
- *
- */
-const char* mocc_error_string(mocc_error error);
 
 #endif /* MOCC_H */

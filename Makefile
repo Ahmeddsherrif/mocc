@@ -4,7 +4,7 @@
 # Configuration
 #------------------------------------------------------------------------------
 
-LOGGER_ENABLED ?= 0
+VERBOSE_ENABLED ?= 0
 
 CC  = gcc
 CXX = g++
@@ -67,9 +67,9 @@ CXXFLAGS = \
 	-fsanitize=address \
 	$(INCLUDE_DIRS)
 
-ifeq ($(LOGGER_ENABLED),1)
-	CFLAGS   += -DLOGGER_ENABLED
-	CXXFLAGS += -DLOGGER_ENABLED
+ifeq ($(VERBOSE_ENABLED),1)
+	CFLAGS   += -DVERBOSE_ENABLED
+	CXXFLAGS += -DVERBOSE_ENABLED
 endif
 
 LDFLAGS = -fsanitize=address

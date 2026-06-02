@@ -2,12 +2,15 @@
 
 set -e
 
-LOGGER_ENABLED=0
+VERBOSE_ENABLED=0
+LOG_ENABLED=0
+
+
 LOG_DIR="log"
 TEMP_DIR="tmp"
 
 run() {
-    if [ "$LOGGER_ENABLED" -eq 1 ]; then
+    if [ "$LOG_ENABLED" -eq 1 ]; then
 
         mkdir -p "$TEMP_DIR"
 
@@ -33,12 +36,15 @@ run() {
 }
 
 if [ "$1" = "-v" ]; then
-    LOGGER_ENABLED=1
+    VERBOSE_ENABLED=1
+elif [ "$1" = "-vl" ]; then
+    VERBOSE_ENABLED=1
+    LOG_ENABLED=1
 fi
 
 make clean
 
-make build LOGGER_ENABLED="$LOGGER_ENABLED"
+make build VERBOSE_ENABLED="$VERBOSE_ENABLED"
 
 run ./out/mocc_test
 
