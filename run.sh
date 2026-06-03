@@ -2,7 +2,6 @@
 
 set -e
 
-VERBOSE_ENABLED=0
 LOG_ENABLED=0
 
 
@@ -35,17 +34,16 @@ run() {
     fi
 }
 
-if [ "$1" = "-v" ]; then
-    VERBOSE_ENABLED=1
-elif [ "$1" = "-vl" ]; then
-    VERBOSE_ENABLED=1
+
+if [ "$1" = "-l" ]; then
     LOG_ENABLED=1
 fi
 
 make clean
 
-make build VERBOSE_ENABLED="$VERBOSE_ENABLED"
+make build
 
 run ./out/mocc_test
+run ./out/mocc_bench
 
 echo "Tests passed."

@@ -40,29 +40,31 @@ static void benchmark_push_back(size_t count)
 {
     std::cout << "Benchmark: push_back(" << count << ")" << std::endl;
 
+    std::vector<int> vec;
+    mocc_object* mocc = nullptr;
+    mocc_ctor(sizeof(int), 0, &mocc);
+    int value;
+
     const double vector_time = measure(
         [&]()
         {
-            std::vector<int> container;
             for (size_t i = 0; i < count; ++i)
             {
-                container.push_back(static_cast<int>(i));
+                vec.push_back(static_cast<int>(i));
             }
         });
 
     const double mocc_time = measure(
         [&]()
         {
-            mocc_object* container = nullptr;
-            mocc_ctor(sizeof(int), 8, &container);
             for (size_t i = 0; i < count; ++i)
             {
-                const int value = static_cast<int>(i);
-                mocc_push_back(container, &value);
+                value = static_cast<int>(i);
+                mocc_push_back(mocc, &value);
             }
-            mocc_dtor(container);
         });
 
+    mocc_dtor(mocc);
     print_benchmark_result(vector_time, mocc_time);
 }
 
@@ -70,20 +72,31 @@ static void benchmark_random_access(size_t count)
 {
     std::cout << "Benchmark: sequential access(" << count << ")" << std::endl;
 
+    std::vector<int> vec;
+
+    for (size_t i = 0; i < count; ++i)
+    {
+        vec.push_back(static_cast<int>(i));
+    }
+
+    mocc_object* mocc = nullptr;
+    mocc_ctor(sizeof(int), 0, &mocc);
+    int value;
+    int* pointer = nullptr;
+
+    for (size_t i = 0; i < count; ++i)
+    {
+        value = static_cast<int>(i);
+        mocc_push_back(mocc, &value);
+    }
+
     const double vector_time = measure(
         [&]()
         {
-            std::vector<int> container;
-            container.reserve(count);
-            for (size_t i = 0; i < count; ++i)
-            {
-                container.push_back(static_cast<int>(i));
-            }
-
             volatile int sum = 0;
             for (size_t i = 0; i < count; ++i)
             {
-                sum += container[i];
+                sum += vec[i];
             }
             (void)sum;
         });
@@ -91,91 +104,73 @@ static void benchmark_random_access(size_t count)
     const double mocc_time = measure(
         [&]()
         {
-            mocc_object* container = nullptr;
-            mocc_ctor(sizeof(int), 8, &container);
-            for (size_t i = 0; i < count; ++i)
-            {
-                const int value = static_cast<int>(i);
-                mocc_push_back(container, &value);
-            }
-
             volatile int sum = 0;
             for (size_t i = 0; i < count; ++i)
             {
-                int* pointer = nullptr;
-                mocc_at(container, i, reinterpret_cast<void**>(&pointer));
+                mocc_at(mocc, i, reinterpret_cast<void**>(&pointer));
                 sum += *pointer;
             }
             (void)sum;
-
-            mocc_dtor(container);
         });
 
+    mocc_dtor(mocc);
     print_benchmark_result(vector_time, mocc_time);
 }
 
 static void benchmark_erase_middle(size_t count)
 {
     std::cout << "Benchmark: erase middle(" << count << ")" << std::endl;
+    std::vector<int> vec;
+    vec.reserve(count);
+    for (size_t i = 0; i < count; ++i)
+    {
+        vec.push_back(static_cast<int>(i));
+    }
+
+    mocc_object* mocc = nullptr;
+    mocc_ctor(sizeof(int), count, &mocc);
+    size_t index;
+    for (size_t i = 0; i < count; ++i)
+    {
+        const int value = static_cast<int>(i);
+        mocc_push_back(mocc, &value);
+    }
 
     const double vector_time = measure(
         [&]()
         {
-            std::vector<int> container;
-            container.reserve(count);
-            for (size_t i = 0; i < count; ++i)
+            for (int i = 0; i < 10 && !vec.empty(); ++i)
             {
-                container.push_back(static_cast<int>(i));
-            }
-
-            for (int i = 0; i < 10 && !container.empty(); ++i)
-            {
-                container.erase(container.begin() + container.size() / 2);
+                vec.erase(vec.begin() + vec.size() / 2);
             }
         });
 
     const double mocc_time = measure(
         [&]()
         {
-            mocc_object* container = nullptr;
-            mocc_ctor(sizeof(int), 8, &container);
-            for (size_t i = 0; i < count; ++i)
-            {
-                const int value = static_cast<int>(i);
-                mocc_push_back(container, &value);
-            }
-
             for (int i = 0; i < 10; ++i)
             {
-                const size_t index = (count - static_cast<size_t>(i)) / 2;
-                mocc_erase(container, index);
+                index = (count - static_cast<size_t>(i)) / 2;
+                mocc_erase(mocc, index);
             }
-
-            mocc_dtor(container);
         });
 
+    mocc_dtor(mocc);
     print_benchmark_result(vector_time, mocc_time);
 }
 
 static void benchmark_reserve(size_t count)
 {
     std::cout << "Benchmark: reserve(" << count << ")" << std::endl;
+    std::vector<int> vec;
+    mocc_object* mocc = nullptr;
+    mocc_ctor(sizeof(int), 0, &mocc);
 
-    const double vector_time = measure(
-        [&]()
-        {
-            std::vector<int> container;
-            container.reserve(count);
-        });
+    const double vector_time = measure([&]() { vec.reserve(count); });
 
-    const double mocc_time = measure(
-        [&]()
-        {
-            mocc_object* container = nullptr;
-            mocc_ctor(sizeof(int), 8, &container);
-            mocc_reserve(container, count);
-            mocc_dtor(container);
-        });
+    const double mocc_time = measure([&]() { mocc_reserve(mocc, count); });
+
+    mocc_dtor(mocc);
 
     print_benchmark_result(vector_time, mocc_time);
 }

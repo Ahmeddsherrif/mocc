@@ -60,9 +60,10 @@ mocc_error mocc_ctor(size_t element_size, size_t initial_capacity, mocc_object**
 {
     mocc_object* mocc = NULL;
     void* buffer = NULL;
+    int err;
 
     DEFFENSIVE_ASSERT(element_size > 0, MOCC_ERROR_INVALID_ARGUMENT);
-    DEFFENSIVE_ASSERT(initial_capacity > 0, MOCC_ERROR_INVALID_ARGUMENT);
+
     DEFFENSIVE_ASSERT(object, MOCC_ERROR_INVALID_ARGUMENT);
 
     mocc = calloc(1, sizeof(mocc_object));
@@ -78,7 +79,15 @@ mocc_error mocc_ctor(size_t element_size, size_t initial_capacity, mocc_object**
     mocc->_size = 0;
     mocc->_capacity = initial_capacity;
 
-    DEFFENSIVE_ASSERT(0 == pthread_mutex_init(&mocc->_mutex, NULL), MOCC_ERROR_INTERNAL);
+    err = pthread_mutex_init(&mocc->_mutex, NULL);
+
+    if (MOCC_OK != err)
+    {
+        free(buffer);
+        free(mocc);
+    }
+
+    DEFFENSIVE_ASSERT(MOCC_OK == err, MOCC_ERROR_INTERNAL);
 
     *object = mocc;
 
@@ -187,20 +196,13 @@ mocc_error mocc_push_back(mocc_object* me, const void* element)
                           MOCC_ERROR_INTERNAL);
 
         err = mocc_reserve(me, me->_capacity == 0 ? 1 : me->_capacity * 2);
+        DEFFENSIVE_ASSERT(me->_size < me->_capacity, MOCC_ERROR_INTERNAL);
+
         if (err != MOCC_OK)
             return err;
     }
 
-    DEFFENSIVE_ASSERT(me->_size < me->_capacity, MOCC_ERROR_INTERNAL);
-
-    if (me->_size == 0)
-    {
-        me->_back = me->_front;
-    }
-    else
-    {
-        me->_back = (char*)me->_back + me->_element_size;
-    }
+    me->_back = (char*)me->_back + me->_element_size;
 
     memcpy(me->_back, element, me->_element_size);
     me->_size++;

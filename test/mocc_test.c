@@ -189,6 +189,25 @@ void test_pop_back_to_empty(void)
     TEST_ASSERT_EQUAL(MOCC_ERROR_EMPTY, mocc_front(g_mocc, (void**)&value));
 }
 
+void test_pop_back_to_empty_twice(void)
+{
+    int value = 42;
+    size_t size = 1;
+
+    mocc_ctor(sizeof(int), DEFAULT_CAPACITY, &g_mocc);
+    mocc_push_back(g_mocc, &value);
+    TEST_ASSERT_EQUAL(MOCC_OK, mocc_pop_back(g_mocc));
+    TEST_ASSERT_EQUAL(MOCC_OK, mocc_size(g_mocc, &size));
+    TEST_ASSERT_EQUAL(0, size);
+    TEST_ASSERT_EQUAL(MOCC_ERROR_EMPTY, mocc_front(g_mocc, (void**)&value));
+
+    mocc_push_back(g_mocc, &value);
+    TEST_ASSERT_EQUAL(MOCC_OK, mocc_pop_back(g_mocc));
+    TEST_ASSERT_EQUAL(MOCC_OK, mocc_size(g_mocc, &size));
+    TEST_ASSERT_EQUAL(0, size);
+    TEST_ASSERT_EQUAL(MOCC_ERROR_EMPTY, mocc_front(g_mocc, (void**)&value));
+}
+
 /* ---------------------------
  * At / Front / Back
  * --------------------------*/
@@ -528,6 +547,7 @@ int main(void)
     RUN_TEST(test_push_back_capacity_growth);
     RUN_TEST(test_pop_back_decrements_size);
     RUN_TEST(test_pop_back_to_empty);
+    RUN_TEST(test_pop_back_to_empty_twice);
     RUN_TEST(test_at_front_back);
     RUN_TEST(test_front_back_empty_error);
     RUN_TEST(test_erase_first_element);

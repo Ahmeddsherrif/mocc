@@ -4,7 +4,7 @@
 # Configuration
 #------------------------------------------------------------------------------
 
-VERBOSE_ENABLED ?= 0
+VERBOSE_ENABLED ?= 1
 
 CC  = gcc
 CXX = g++
