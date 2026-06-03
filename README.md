@@ -61,6 +61,20 @@ sudo apt update
 sudo apt install git make gcc g++ clang-format
 ```
 
+## Clone the repository
+
+Clone the project and initialize the Unity submodule in one step:
+
+```bash
+git clone --recurse-submodules https://github.com/Ahmeddsherrif/mocc
+```
+
+If the repository was cloned without submodules, run:
+
+```bash
+git submodule update --init --recursive
+```
+
 ## Build and test
 
 Build the library, the unit test executable, and the benchmark executable:
