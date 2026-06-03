@@ -16,23 +16,22 @@ static double measure(const std::function<void()>& callback)
 
 static void print_benchmark_result(const double vector_time, const double mocc_time)
 {
-    
+
     auto diff = mocc_time - vector_time;
     auto percentage_diff = (diff / vector_time) * 100.0;
 
-
-    if(vector_time < mocc_time)
+    if (vector_time < mocc_time)
     {
         std::cout << " +++ std::vector: " << vector_time << " ms" << std::endl;
-        std::cout << "     mocc       : " << mocc_time   << " ms" << std::endl;
+        std::cout << "     mocc       : " << mocc_time << " ms" << std::endl;
     }
     else
     {
-        std::cout << "     std::vector: " << vector_time << " ms"<< std::endl;
-        std::cout << " +++ mocc       : " << mocc_time   << " ms" << std::endl;
+        std::cout << "     std::vector: " << vector_time << " ms" << std::endl;
+        std::cout << " +++ mocc       : " << mocc_time << " ms" << std::endl;
     }
 
-        std::cout << "     Delta      : " << diff << " ms (" << percentage_diff << "%)" << std::endl;
+    std::cout << "     Delta      : " << diff << " ms (" << percentage_diff << "%)" << std::endl;
 
     std::cout << std::endl;
 }
@@ -64,9 +63,7 @@ static void benchmark_push_back(size_t count)
             mocc_dtor(container);
         });
 
-        
     print_benchmark_result(vector_time, mocc_time);
-
 }
 
 static void benchmark_random_access(size_t count)
